@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WerzClient</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Audiowide&family=Pacifico&display=swap">
+<style>
+:root{color-scheme:dark;--card:rgba(14,18,40,.55);--text:#eef3ff;--muted:#9aa8cc;--line:rgba(190,210,255,.22);--accent:#8fd3ff;--accent2:#a58bff;--accent-t:#071024;--err:#ff8a80;--ok:#6fd49a;--btn:rgba(43,58,76,.9);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;height:100%;display:flex;align-items:center;justify-content:center;padding:20px;overflow:hidden;color:var(--text);font:16px/1.4 "Segoe UI",system-ui,sans-serif;background:radial-gradient(ellipse at 50% 120%,#3a2a6b 0%,transparent 60%),linear-gradient(180deg,#050a1c,#0c1838 55%,#1a1f4d)}
+.brand{position:fixed;left:0;right:0;top:50%;text-align:center;transform:translateY(-50%);font:400 clamp(44px,15vw,170px)/1.15 "Pacifico","Brush Script MT",cursive;color:transparent;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.75) 50%,transparent 60%),linear-gradient(180deg,rgba(205,238,255,.6) 0%,rgba(120,190,255,.25) 50%,rgba(150,160,255,.1) 100%);background-size:250% 100%,100% 100%;background-repeat:no-repeat;-webkit-background-clip:text;background-clip:text;-webkit-text-stroke:1px rgba(215,242,255,.4);filter:url(#water) drop-shadow(0 8px 16px rgba(110,180,255,.28));pointer-events:none;user-select:none;animation:float 8s ease-in-out infinite,shine 6s linear infinite}
+@keyframes float{0%,100%{transform:translateY(-53%) rotate(-1deg)}50%{transform:translateY(-47%) rotate(1deg)}}
+@keyframes shine{from{background-position:0% 0,0 0}to{background-position:100% 0,0 0}}
+#snow{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
+.win{position:relative;z-index:2;width:100%;max-width:360px;background:var(--card);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:18px;padding:28px 24px 22px;box-shadow:0 20px 60px rgba(0,0,10,.5);animation:in .7s cubic-bezier(.2,.8,.2,1) both}
+@keyframes in{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:none}}
+.win.shake{animation:shake .45s}
+@keyframes shake{20%{transform:translateX(-9px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
+.view{display:none}.view.on{display:block;animation:fade .45s ease both}
+@keyframes fade{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+h1{font-size:24px;margin:0 0 4px;text-align:center}
+p.sub{margin:0 0 20px;color:var(--muted);font-size:14px;text-align:center}
+.field{position:relative;margin-bottom:6px}
+.field input{width:100%;padding:20px 12px 7px;font:inherit;color:var(--text);background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:10px;transition:border-color .25s,box-shadow .25s}
+.field label{position:absolute;left:13px;top:14px;color:var(--muted);pointer-events:none;transition:all .2s ease}
+.field input:focus+label,.field input:not(:placeholder-shown)+label{top:5px;font-size:11.5px;color:var(--accent)}
+.field input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 25%,transparent)}
+.pw input{padding-right:88px}
+.hint{margin:0 0 14px 4px;font-size:12px;color:var(--muted)}
+.toggle{position:absolute;right:6px;top:8px;bottom:8px;padding:0 10px;background:none;border:0;border-radius:6px;color:var(--accent);font:inherit;font-size:13px;cursor:pointer}
+.toggle:hover{background:rgba(255,255,255,.1)}
+.go{position:relative;overflow:hidden;width:100%;margin-top:6px;padding:13px;border:0;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--accent-t);font:inherit;font-weight:600;cursor:pointer;transition:transform .15s,box-shadow .25s}
+.go:hover{transform:translateY(-2px);box-shadow:0 8px 22px color-mix(in srgb,var(--accent) 45%,transparent)}
+.go:active{transform:scale(.97)}
+.go.load{pointer-events:none;opacity:.8}
+.sp{display:none;width:16px;height:16px;border:2px solid var(--accent-t);border-top-color:transparent;border-radius:50%;margin:0 auto;animation:spin .7s linear infinite}
+.go.load .sp{display:block}.go.load .tx{display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.rip{position:absolute;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.45);transform:scale(0);animation:rip .6s ease-out forwards;pointer-events:none}
+@keyframes rip{to{transform:scale(5);opacity:0}}
+input:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#msg{min-height:20px;margin:12px 0 0;font-size:14px;text-align:center}
+.err{color:var(--err)}.ok{color:var(--ok)}
+.sw{display:block;margin:6px auto 0;background:none;border:0;color:var(--accent);font:inherit;font-size:14px;cursor:pointer;padding:6px 10px;border-radius:6px}
+.sw:hover{background:rgba(255,255,255,.08)}
+/* главный экран */
+#main{display:none;position:fixed;inset:0;z-index:3;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 16px) 12px calc(env(safe-area-inset-bottom,0px) + 12px)}
+#main.on{display:flex}
+.top{text-align:center;font:18px "Audiowide","Arial Black",sans-serif;color:var(--accent)}
+.bottom{margin:auto auto 0;width:100%;max-width:340px}
+.card{position:relative;display:none;margin:0 auto 10px;max-width:320px;max-height:62vh;overflow-y:auto;background:rgba(14,18,40,.8);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:14px;padding:12px 34px 12px 14px;text-align:left;transform-origin:50% 100%}
+.card.on{display:block;animation:pop .45s cubic-bezier(.3,1.5,.5,1) both}
+@keyframes pop{0%{opacity:0;transform:translateY(18px) scale(.8)}100%{opacity:1;transform:none}}
+.card h2{margin:0 0 3px;font-size:15px}.card p{margin:0;color:var(--muted);font-size:13px}
+.card .x{position:absolute;top:6px;right:6px;width:24px;height:24px;border:0;border-radius:50%;background:rgba(255,255,255,.08);color:var(--text);font-size:14px;line-height:1;cursor:pointer}
+.card .out{margin-top:10px;padding:7px 14px;border:1px solid var(--line);border-radius:8px;background:none;color:var(--text);font:inherit;font-size:13px;cursor:pointer}
+.menu{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.menu button{position:relative;display:flex;align-items:center;justify-content:center;gap:7px;height:42px;border:0;border-radius:10px;background:var(--btn);color:#fff;font:600 13.5px/1 "Segoe UI",system-ui,sans-serif;cursor:pointer;transition:transform .12s,background .2s}
+.menu button:hover{background:rgba(58,76,98,.95)}.menu button:active{transform:scale(.95)}
+.menu .wide{grid-column:1/3}
+.menu svg{width:17px;height:17px;flex:none;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.menu .ext{position:absolute;top:5px;right:7px;width:10px;height:10px}
+.seg{display:flex;gap:4px;padding:3px;margin-bottom:10px;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:10px}
+.seg button{flex:1;padding:7px;border:0;border-radius:7px;background:none;color:var(--muted);font:inherit;font-size:14px;cursor:pointer;transition:background .2s,color .2s}
+.seg button.on{background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--accent-t);font-weight:600}
+.item{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.item b{font-size:14px}.item span{color:var(--accent);font-weight:600;font-size:14px}
+.item button{padding:6px 12px;border:0;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--accent-t);font:600 13px "Segoe UI",system-ui,sans-serif;cursor:pointer}
+.mut{font-size:12px;color:var(--muted)}
+.row{display:flex;gap:8px;margin-top:10px}.row .out{margin-top:0!important}
+.demo,.card .demo{margin:0 0 14px;padding:8px 10px;border:1px dashed var(--accent);border-radius:8px;color:var(--accent);font-size:12.5px}
+.card .demo{margin:10px 0}
+.card .field{margin-top:12px}
+.item.sm{margin-top:6px;padding-top:6px;border-top:0}
+.item button:disabled{opacity:.5;cursor:default}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="water" x="-5%" y="-15%" width="110%" height="130%"><feTurbulence type="fractalNoise" baseFrequency="0.012 0.035" numOctaves="2" seed="4" result="n"><animate attributeName="baseFrequency" dur="9s" values="0.010 0.030;0.018 0.046;0.010 0.030" repeatCount="indefinite"/></feTurbulence><feDisplacementMap in="SourceGraphic" in2="n" scale="12"><animate attributeName="scale" dur="5s" values="8;16;8" repeatCount="indefinite"/></feDisplacementMap></filter></svg>
+<div class="brand" aria-hidden="true">WerzClient</div>
+<canvas id="snow" aria-hidden="true"></canvas>
+
+<main class="win" id="win">
+  <section class="view" id="v-reg">
+    <h1>Регистрация</h1>
+    <p class="sub">Создайте аккаунт WerzClient</p>
+    <div class="field"><input id="rl" type="text" placeholder=" " maxlength="20" autocomplete="username" autocapitalize="off"><label for="rl">Логин</label></div>
+    <p class="hint">3–20 символов: английские буквы, цифры, _</p>
+    <div class="field"><input id="rc" type="email" placeholder=" " maxlength="60" autocomplete="email" autocapitalize="off"><label for="rc">Эл. почта</label></div>
+    <p class="hint">На неё придёт код подтверждения</p>
+    <div class="field pw"><input id="rp" type="password" placeholder=" " autocomplete="new-password"><label for="rp">Пароль</label><button class="toggle" type="button" data-t="rp">Показать</button></div>
+    <p class="hint">От 8 символов: английские буквы и цифры, минимум 1 буква и 1 цифра</p>
+    <button class="go" id="reg" type="button"><span class="tx">Зарегистрироваться</span><span class="sp"></span></button>
+    <button class="sw" type="button" data-go="login">Уже есть аккаунт? Войти</button>
+  </section>
+  <section class="view" id="v-login">
+    <h1>Вход</h1>
+    <p class="sub">С возвращением в WerzClient</p>
+    <div class="field" style="margin-bottom:14px"><input id="ll" type="email" placeholder=" " maxlength="60" autocomplete="email" autocapitalize="off"><label for="ll">Эл. почта</label></div>
+    <div class="field pw" style="margin-bottom:14px"><input id="lp" type="password" placeholder=" " autocomplete="current-password"><label for="lp">Пароль</label><button class="toggle" type="button" data-t="lp">Показать</button></div>
+    <button class="go" id="log" type="button"><span class="tx">Войти</span><span class="sp"></span></button>
+    <button class="sw" type="button" data-go="reg">Нет аккаунта? Зарегистрироваться</button>
+  </section>
+  <section class="view" id="v-code">
+    <h1>Подтверждение</h1>
+    <p class="sub" id="cs"></p>
+    <div class="field" style="margin-bottom:14px"><input id="cc" type="text" inputmode="numeric" maxlength="6" placeholder=" " autocomplete="one-time-code"><label for="cc">Код из 6 цифр</label></div>
+    <button class="go" id="cok" type="button">Подтвердить</button>
+    <button class="sw" id="cre" type="button">Отправить код ещё раз</button>
+    <button class="sw" id="cback" type="button">Назад</button>
+  </section>
+  <p id="msg" role="status"></p>
+</main>
+
+<section id="main">
+  <div class="top">WerzClient</div>
+  <div class="bottom"><div class="card" id="card"></div>
+  <nav class="menu" aria-label="Главное меню">
+    <button class="wide" data-k="catalog"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>Каталог</button>
+    <button data-k="support"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-3-6.2L20 4l-1 4.2A8 8 0 0 1 20 12zM8 12l3 3 5-6"/></svg>Тех.Поддержка</button>
+    <button data-k="profile"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg>Профиль</button>
+    <button class="wide" data-k="howto"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/></svg>Как купить</button>
+    <button data-k="channel"><svg viewBox="0 0 24 24"><path d="M4 10v4l12 5V5L4 10zM8 15l1 5h3"/></svg>Наш канал<svg class="ext" viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></svg></button>
+    <button data-k="reviews"><svg viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.8-4.5 4.2 1.1 6-5.4-2.9L6.6 19.6l1.1-6L3.2 9.4l6.1-.8L12 3z"/></svg>Отзывы<svg class="ext" viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></svg></button>
+    <button class="wide" data-k="social"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 10.8l7.6-3.6M8.2 13.2l7.6 3.6"/></svg>Соцсети<svg class="ext" viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></svg></button>
+  </nav></div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SB_URL='https://xgtmglkwktertlqmchda.supabase.co',SB_KEY='sb_publishable_dfaQbm0O41QjCXXp07LBCg_SFX83dxh';
+const db=window.supabase?window.supabase.createClient(SB_URL,SB_KEY):null;
+const $=id=>document.getElementById(id),m=$('msg'),w=$('win');
+/* Вставьте свои ссылки сюда */
+const LINKS={support:'',channel:'',reviews:'',social:''};
+const LOGIN_RE=/^[A-Za-z0-9_]{3,20}$/,PASS_RE=/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z0-9_]{8,}$/,EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/,PHONE_RE=/^\+?\d{10,15}$/;
+const E=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+const mono='font-family:monospace;color:var(--text);font-size:12.5px';
+const fmt=d=>new Date(d).toLocaleString('ru-RU',{dateStyle:'short',timeStyle:'short'});
+let me=null,isAdmin=false,pend=null,PR=[];
+function show(v){['reg','login','code'].forEach(x=>$('v-'+x).classList.toggle('on',x===v));m.textContent=''}
+document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));
+document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{const i=$(b.dataset.t),s=i.type==='password';i.type=s?'text':'password';b.textContent=s?'Скрыть':'Показать'});
+['rl','rp','lp'].forEach(id=>$(id).addEventListener('input',e=>{const el=e.target,c=el.value.replace(/[^A-Za-z0-9_]/g,'');if(c!==el.value){el.value=c;m.className='err';m.textContent='Только английские буквы, цифры и _'}}));
+$('cc').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'')});
+document.querySelectorAll('.go').forEach(g=>g.addEventListener('click',e=>{const r=g.getBoundingClientRect(),s=document.createElement('span');s.className='rip';s.style.left=(e.clientX-r.left-20)+'px';s.style.top=(e.clientY-r.top-20)+'px';g.appendChild(s);setTimeout(()=>s.remove(),600)}));
+function bad(t,el){m.className='err';m.textContent=t;w.classList.remove('shake');void w.offsetWidth;w.classList.add('shake');if(el)el.focus()}
+function busy(b,on){b.classList.toggle('load',on)}
+function tr(t){t=t||'';if(/already|registered/i.test(t))return 'Эта почта уже зарегистрирована';if(/Database error/i.test(t))return 'Такой логин уже занят';if(/rate limit|too many/i.test(t))return 'Слишком много попыток, попробуйте позже';if(/invalid email/i.test(t))return 'Неверная почта';return 'Ошибка: '+t}
+function seen(){try{localStorage.setItem('werz_seen','1')}catch(e){}}
+const logEv=a=>{try{db.rpc('log_event',{p_action:a,p_details:{}}).then(()=>{},()=>{})}catch(e){}};
+
+$('reg').onclick=async()=>{
+  if(!db)return bad('Нет подключения к серверу');
+  const l=$('rl').value.trim(),e=$('rc').value.trim().toLowerCase(),p=$('rp').value;
+  if(!LOGIN_RE.test(l))return bad('Логин: 3–20 символов, английские буквы, цифры и _',$('rl'));
+  if(!EMAIL_RE.test(e))return bad('Введите правильную почту, например name@mail.com',$('rc'));
+  if(!PASS_RE.test(p))return bad('Пароль: от 8 символов, английские буквы и цифры (минимум 1 буква и 1 цифра)',$('rp'));
+  busy($('reg'),true);
+  const {error}=await db.auth.signUp({email:e,password:p,options:{data:{login:l}}});
+  busy($('reg'),false);
+  if(error)return bad(tr(error.message));
+  pend={email:e};$('cs').textContent='Мы отправили код на '+maskEmail(e);$('cc').value='';show('code');$('cc').focus()};
+$('cre').onclick=async()=>{if(!pend)return;const {error}=await db.auth.resend({type:'signup',email:pend.email});if(error)return bad(tr(error.message));m.className='ok';m.textContent='Новый код отправлен'};
+$('cback').onclick=()=>show('reg');
+$('cok').onclick=async()=>{
+  if(!pend)return show('reg');
+  const c=$('cc').value;if(c.length<6)return bad('Введите код из письма',$('cc'));
+  busy($('cok'),true);
+  const {error}=await db.auth.verifyOtp({email:pend.email,token:c,type:'signup'});
+  busy($('cok'),false);
+  if(error)return bad('Неверный или просроченный код',$('cc'));
+  pend=null;seen();start()};
+$('log').onclick=async()=>{
+  if(!db)return bad('Нет подключения к серверу');
+  const e=$('ll').value.trim().toLowerCase(),p=$('lp').value;
+  if(!EMAIL_RE.test(e))return bad('Введите почту',$('ll'));
+  if(!p)return bad('Введите пароль',$('lp'));
+  busy($('log'),true);
+  const {error}=await db.auth.signInWithPassword({email:e,password:p});
+  busy($('log'),false);
+  if(error)return bad(/not confirmed/i.test(error.message)?'Почта не подтверждена':'Неверная почта или пароль',$('lp'));
+  seen();await start();logEv('login')};
+['rl','rc','rp'].forEach(i=>$(i).addEventListener('keydown',e=>{if(e.key==='Enter')$('reg').click()}));
+['ll','lp'].forEach(i=>$(i).addEventListener('keydown',e=>{if(e.key==='Enter')$('log').click()}));
+$('cc').addEventListener('keydown',e=>{if(e.key==='Enter')$('cok').click()});
+
+async function start(){
+  const {data:{user}}=await db.auth.getUser();if(!user)return show('login');
+  const pr=(await db.from('profiles').select('login,phone').eq('id',user.id).maybeSingle()).data;
+  const ad=(await db.from('admins').select('user_id').eq('user_id',user.id).maybeSingle()).data;
+  me={id:user.id,email:user.email,login:(pr&&pr.login)||user.email.split('@')[0],phone:(pr&&pr.phone)||''};isAdmin=!!ad;
+  w.style.display='none';$('main').classList.add('on');setAdmin();card('Привет, '+me.login+'!','Выберите раздел в меню.')}
+async function out(){await db.auth.signOut();me=null;isAdmin=false;const ab=$('adminBtn');if(ab)ab.remove();$('main').classList.remove('on');w.style.display='';$('ll').value='';$('lp').value='';show('login')}
+
+/* меню */
+const TXT={howto:['Как купить','Выберите товар в каталоге, оформите заказ и оплатите. Подробная инструкция скоро появится.'],support:['Тех.Поддержка','Напишите нам, и мы поможем.'],channel:['Наш канал','Новости и обновления WerzClient.'],reviews:['Отзывы','Отзывы наших клиентов.'],social:['Соцсети','Мы в социальных сетях.']};
+function card(h,t,extra){const c=$('card');c.classList.remove('on');void c.offsetWidth;c.innerHTML='';const a=document.createElement('h2');a.textContent=h;const p=document.createElement('p');p.textContent=t;const x=document.createElement('button');x.className='x';x.textContent='×';x.setAttribute('aria-label','Закрыть');x.onclick=()=>c.classList.remove('on');c.append(a,p);if(extra)c.append(extra);c.append(x);c.classList.add('on')}
+document.querySelectorAll('.menu button').forEach(b=>b.onclick=()=>{
+  const k=b.dataset.k;
+  if(k==='profile')return profile();
+  if(k==='catalog')return catalog();
+  const url=LINKS[k];
+  if(url){window.open(url,'_blank','noopener');return}
+  card(TXT[k][0],TXT[k][1]+(k!=='howto'?' Ссылка пока не добавлена.':''))});
+
+function maskEmail(e){const [n,d]=e.split('@'),k=Math.max(1,Math.floor(n.length/2));return n.slice(0,k)+'*'.repeat(n.length-k)+'@'+d}
+function maskPhone(p){const d=p.replace(/\D/g,'');return '+'+d.slice(0,2)+'*'.repeat(Math.max(d.length-4,1))+d.slice(-2)}
+async function copy(t,b){try{await navigator.clipboard.writeText(t);b.textContent='Скопировано'}catch(e){b.textContent='Выделите и скопируйте'}}
+async function products(){if(!PR.length){const r=await db.from('products').select().order('sort');PR=r.data||[]}return PR}
+const pname=id=>(PR.find(p=>p.id===id)||{}).name||id;
+function backBtn(fn){const b=E('button','out','Назад');b.style.marginTop='12px';b.onclick=fn;return b}
+
+function profile(){
+  const ex=E('div');
+  ex.append(E('p','mut','Почта: '+maskEmail(me.email)),E('p','mut','Телефон: '+(me.phone?maskPhone(me.phone):'не добавлен')));
+  const mk=E('button','out','Мои ключи');mk.style.marginTop='10px';mk.onclick=myKeys;ex.append(mk);
+  const row=E('div','row'),s=E('button','out','Настройки'),o=E('button','out','Выйти');s.onclick=()=>settings();o.onclick=out;row.append(s,o);ex.append(row);
+  card('Профиль','Логин: '+me.login,ex)}
+function settings(note){
+  const box=E('div'),r=E('div','item'),t=E('div');
+  t.append(E('b',0,'Почта'),E('div','mut',maskEmail(me.email)+' · подтверждена'));r.append(t);
+  const r2=E('div','item'),t2=E('div');t2.append(E('b',0,'Телефон'),E('div','mut',me.phone?maskPhone(me.phone)+' · не подтверждён':'не добавлен'));
+  const b=E('button',0,me.phone?'Изменить':'Добавить');b.onclick=addPhone;r2.append(t2,b);
+  box.append(r,r2,backBtn(profile));
+  card('Безопасность аккаунта',note||'Добавьте номер, чтобы не потерять аккаунт.',box)}
+function addPhone(){
+  const box=E('div'),f=E('div','field'),i=E('input'),lb=E('label',0,'Номер телефона'),err=E('p','mut'),go=E('button','go','Сохранить');
+  i.id='sc';i.type='tel';i.placeholder=' ';i.maxLength=20;lb.htmlFor='sc';f.append(i,lb);err.style.cssText='color:var(--err);margin-top:6px';
+  go.onclick=async()=>{const raw=i.value.trim().replace(/[\s()\-]/g,'');if(!PHONE_RE.test(raw)){err.textContent='Введите номер в формате +79991234567';return}
+    const v=raw.replace('+','');const {error}=await db.from('profiles').update({phone:v}).eq('id',me.id);
+    if(error){err.textContent='Не удалось сохранить';return}me.phone=v;settings('Номер сохранён.')};
+  box.append(f,err,go,backBtn(()=>settings()));card('Телефон','Номер сохранится в профиле.',box)}
+
+async function catalog(){
+  card('Каталог','Загрузка…');
+  const [ps,c]=await Promise.all([products(),db.rpc('stock_counts')]),cnt={};
+  (c.data||[]).forEach(x=>cnt[x.product_id]=Number(x.free));
+  const box=E('div');
+  ps.forEach(p=>{const n=cnt[p.id]||0,it=E('div','item'),t=E('div');t.append(E('b',0,p.name),E('div','mut',n?'в наличии: '+n:'нет в наличии'));
+    const by=E('button',0,'Купить');by.disabled=!n;by.onclick=()=>buy(p);it.append(t,E('span',0,p.price+'₽'),by);box.append(it)});
+  card('Каталог','Доступные товары:',box)}
+async function buy(p){
+  const {data,error}=await db.rpc('buy_key',{p_product:p.id});
+  if(error)return card(p.name,/out of stock/.test(error.message)?'Товар закончился. Напишите в поддержку.':'Не удалось купить: '+error.message);
+  const box=E('div'),kk=E('p','demo',data),cp=E('button','out','Копировать');kk.style.cssText+=';'+mono;cp.onclick=()=>copy(data,cp);box.append(kk,cp);
+  card('Ключ выдан','Оплата пока не подключена, ключ выдан в тестовом режиме. Он сохранён в профиле: «Мои ключи».',box)}
+async function myKeys(){
+  card('Мои ключи','Загрузка…');
+  await products();
+  const r=(await db.from('keys').select('key,product_id,sold_at').eq('sold_to',me.id).order('sold_at',{ascending:false})).data||[],box=E('div');
+  if(!r.length)box.append(E('p','mut','Пока нет купленных ключей.'));
+  r.forEach(x=>{const row=E('div','item sm'),t=E('div'),kk=E('div','mut',x.key);kk.style.cssText=mono;t.append(kk,E('div','mut',pname(x.product_id)));
+    const cp=E('button',0,'Копировать');cp.onclick=()=>copy(x.key,cp);row.append(t,cp);box.append(row)});
+  box.append(backBtn(profile));card('Мои ключи','',box)}
+
+/* админ */
+function setAdmin(){const o=$('adminBtn');if(o)o.remove();if(!isAdmin)return;const b=E('button','wide','Админ-панель');b.id='adminBtn';b.onclick=()=>adminPanel();document.querySelector('.menu').append(b)}
+async function adminPanel(note){
+  card('Админ-панель','Загрузка…');
+  const [ps,c,f]=await Promise.all([products(),db.rpc('stock_counts'),db.from('keys').select('id,key,product_id').eq('status','free').order('created_at',{ascending:false}).limit(8)]),cnt={},box=E('div');
+  (c.data||[]).forEach(x=>cnt[x.product_id]=Number(x.free));
+  const row0=E('div','row');[['Аккаунты','users'],['Покупки','orders'],['Логи','logs']].forEach(([n,k])=>{const b=E('button','out',n);b.onclick=()=>adminList(k);row0.append(b)});row0.style.marginBottom='6px';box.append(row0);
+  ps.forEach(p=>{const r=E('div','item sm'),t=E('div');t.append(E('b',0,p.name),E('div','mut','в наличии: '+(cnt[p.id]||0)));
+    const g=E('button',0,'Сгенерировать');g.onclick=async()=>{const {data,error}=await db.rpc('admin_add_key',{p_product:p.id});adminPanel(error?'Ошибка: '+error.message:'Ключ добавлен в «'+p.name+'»: '+data)};r.append(t,g);box.append(r)});
+  const free=f.data||[];
+  if(free.length){const hd=E('p','mut','Последние ключи в наличии:');hd.style.marginTop='12px';box.append(hd)}
+  free.forEach(x=>{const row=E('div','item sm'),t=E('div'),kk=E('div','mut',x.key);kk.style.cssText=mono;t.append(kk,E('div','mut',pname(x.product_id)));
+    const cp=E('button',0,'Копировать');cp.onclick=()=>copy(x.key,cp);
+    const del=E('button',0,'×');del.setAttribute('aria-label','Удалить ключ');del.onclick=async()=>{await db.from('keys').delete().eq('id',x.id);adminPanel('Ключ удалён')};
+    const bt=E('div');bt.style.cssText='display:flex;gap:6px';bt.append(cp,del);row.append(t,bt);box.append(row)});
+  card('Админ-панель',note||'Склад ключей для авто-выдачи.',box)}
+async function adminList(kind){
+  card('Загрузка…','');await products();
+  const pr=(await db.from('profiles').select('id,login,email,phone,created_at').order('created_at',{ascending:false}).limit(200)).data||[],names={};pr.forEach(x=>names[x.id]=x.login);
+  let lines=[],title='';
+  if(kind==='users'){title='Аккаунты ('+pr.length+')';lines=pr.map(x=>x.login+' · '+(x.email||'—')+(x.phone?' · +'+x.phone:'')+' · '+fmt(x.created_at))}
+  if(kind==='orders'){title='Покупки';const o=(await db.from('orders').select('user_id,product_id,price,created_at').order('created_at',{ascending:false}).limit(50)).data||[];lines=o.map(x=>(names[x.user_id]||'?')+' · '+pname(x.product_id)+' · '+x.price+'₽ · '+fmt(x.created_at))}
+  if(kind==='logs'){title='Логи';const l=(await db.from('logs').select('user_id,action,created_at').order('created_at',{ascending:false}).limit(50)).data||[];lines=l.map(x=>fmt(x.created_at)+' · '+(names[x.user_id]||'?')+' · '+x.action)}
+  const box=E('div');if(!lines.length)box.append(E('p','mut','Пока пусто.'));
+  lines.forEach(t=>{const p=E('p','mut',t);p.style.cssText='margin-top:6px;word-break:break-word';box.append(p)});
+  box.append(backBtn(()=>adminPanel()));card(title,'',box)}
+
+/* запуск */
+(async()=>{
+  if(!db){show('login');return bad('Не удалось подключиться к серверу. Проверьте интернет.')}
+  const {data}=await db.auth.getSession();if(data.session)return start();
+  let sn=false;try{sn=!!localStorage.getItem('werz_seen')}catch(e){}show(sn?'login':'reg')})();
+/* снег */
+const cv=$('snow'),cx=cv.getContext('2d');let W,H,F=[];
+function size(){const d=window.devicePixelRatio||1;W=innerWidth;H=innerHeight;cv.width=W*d;cv.height=H*d;cx.setTransform(d,0,0,d,0,0)}
+function mk(top){return{x:Math.random()*W,y:top?-10:Math.random()*H,r:Math.random()*2.6+.8,v:Math.random()*.9+.4,a:Math.random()*6.28,s:Math.random()*.02+.005,o:Math.random()*.5+.4}}
+size();addEventListener('resize',size);
+const N=Math.min(160,Math.round(innerWidth/7));for(let i=0;i<N;i++)F.push(mk(false));
+const still=matchMedia('(prefers-reduced-motion:reduce)').matches;
+function tick(){cx.clearRect(0,0,W,H);for(const f of F){if(!still){f.y+=f.v*(f.r/2+.6);f.a+=f.s;f.x+=Math.sin(f.a)*.6+.15;if(f.y>H+10||f.x>W+10){Object.assign(f,mk(true))}}cx.beginPath();cx.fillStyle='rgba(255,255,255,'+f.o+')';cx.arc(f.x,f.y,f.r,0,6.283);cx.fill()}if(!still)requestAnimationFrame(tick)}
+tick();
+if(still)document.querySelectorAll('animate').forEach(e=>e.remove());
+</script>
+</body>
+</html>
